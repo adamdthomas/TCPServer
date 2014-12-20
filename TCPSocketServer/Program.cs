@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.IO;
 
 namespace TCPSocketServer
 {
@@ -16,15 +17,59 @@ namespace TCPSocketServer
         public static string data = null;
         public static bool RunUDPServer = true;
         public static bool TCPStarted = true;
+        public static string LogPath = @"C:\Logs\";
+        public static string ServerLog = @"ServerLog.txt";
+        public static string ServerLogPath = LogPath + ServerLog;
+        public static string Msg;
+        public static bool WriteToLogFile = false;
+
+
+        public static void SetUpLogFile()
+        {
+            System.IO.Directory.CreateDirectory(LogPath);
+            if (!File.Exists(ServerLogPath))
+            {
+                // Create a file to write to. 
+                using (StreamWriter sw = File.CreateText(ServerLogPath))
+                {
+                    sw.Close();
+                }
+            }
+        }
+
+
+
+        public static void WriteToFile(string TextToWrite)
+        {
+            using (StreamWriter configwriter = File.AppendText(ServerLogPath))
+            {
+                configwriter.WriteLine(TextToWrite);
+                configwriter.Close();
+            }
+        }
 
         public static void LogUDP(string MessageToLog)
         {
-            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " UDP Server: " + MessageToLog);
+            Msg = DateTime.Now.ToString("HH:mm:ss") + " UDP Server: " + MessageToLog;
+            Console.WriteLine(Msg);
+
+            if (WriteToLogFile)
+            {
+                WriteToFile(Msg);
+            }
+           
         }
 
         public static void LogTCP(string MessageToLog)
         {
-            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss") + " TCP Server: " + MessageToLog);
+            Msg = DateTime.Now.ToString("HH:mm:ss") + " TCP Server: " + MessageToLog;
+
+            Console.WriteLine(Msg);
+
+            if (WriteToLogFile)
+            {
+                WriteToFile(Msg);
+            }
         }
 
         public static void StartListeningUDP()
@@ -117,6 +162,17 @@ namespace TCPSocketServer
                         bytes = new byte[1024];
                         int bytesRec = handler.Receive(bytes);
                         data = Encoding.UTF8.GetString(bytes, 0, bytesRec);
+
+                        if (data.ToUpper().IndexOf("NOTE:") > -1)
+                        {
+                            WriteToLogFile = true;
+                        }
+                        else
+                        {
+                            WriteToLogFile = false;
+                        }
+
+
                         if (data.ToUpper().IndexOf("<SERVERKILLCONNECTION>") > -1)
                         {
                             LogTCP("Client has disconnected.");
@@ -177,6 +233,7 @@ namespace TCPSocketServer
 
         public static int Main(String[] args)
         {
+            SetUpLogFile();
             while (true)
             {
                StartListeningTCP();
