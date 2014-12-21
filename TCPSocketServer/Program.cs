@@ -52,10 +52,12 @@ namespace TCPSocketServer
         {
             Msg = DateTime.Now.ToString("HH:mm:ss") + " UDP Server: " + MessageToLog;
             Console.WriteLine(Msg);
-
-            if (WriteToLogFile)
+            if (MessageToLog.ToUpper() != "<LOGON>")
             {
-                WriteToFile(Msg);
+                if (WriteToLogFile)
+                {
+                    WriteToFile(Msg);
+                }
             }
            
         }
@@ -63,12 +65,13 @@ namespace TCPSocketServer
         public static void LogTCP(string MessageToLog)
         {
             Msg = DateTime.Now.ToString("HH:mm:ss") + " TCP Server: " + MessageToLog;
-
             Console.WriteLine(Msg);
-
-            if (WriteToLogFile)
+            if (MessageToLog.ToUpper() != "<LOGON>")
             {
-                WriteToFile(Msg);
+                if (WriteToLogFile)
+                {
+                    WriteToFile(Msg);
+                }
             }
         }
 
@@ -145,6 +148,8 @@ namespace TCPSocketServer
                 listener.Bind(localEndPoint);
                 listener.Listen(10);
 
+                
+
                 // Start listening for connections.
                 while (true)
                 {
@@ -163,12 +168,19 @@ namespace TCPSocketServer
                         int bytesRec = handler.Receive(bytes);
                         data = Encoding.UTF8.GetString(bytes, 0, bytesRec);
 
-                        if (data.ToUpper().IndexOf("NOTE:") > -1)
+                        if(data.ToUpper().IndexOf("<LOGON>") > -1)
                         {
+                            byte[] message = Encoding.UTF8.GetBytes("Server logging has been turned on...");
+                            handler.Send(message);
                             WriteToLogFile = true;
                         }
-                        else
+
+
+
+                        if(data.ToUpper().IndexOf("<LOGOFF>") > -1)
                         {
+                            byte[] message = Encoding.UTF8.GetBytes("Server logging has been turned off...");
+                            handler.Send(message);
                             WriteToLogFile = false;
                         }
 
@@ -184,6 +196,12 @@ namespace TCPSocketServer
                             handler.Shutdown(SocketShutdown.Both);
                             handler.Close();
                             break;
+                        }
+                        else if(data.ToUpper().IndexOf("GET") > -1)
+                        {
+                            byte[] message = Encoding.UTF8.GetBytes(@"HTTP/1.1 200 OK\r\nContent-Type: text/html");
+                            handler.Send(message);
+                            WriteToLogFile = true;
                         }
                         else if (data == "<GAMEPADINFO>")
                         {
