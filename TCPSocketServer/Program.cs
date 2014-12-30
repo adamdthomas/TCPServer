@@ -48,6 +48,20 @@ namespace TCPSocketServer
             }
         }
 
+        public static void LogWeb(string MessageToLog)
+        {
+            string Msg = DateTime.Now.ToString("HH:mm:ss") + " Web Automation: " + MessageToLog;
+            Console.WriteLine(Msg);
+            if (MessageToLog.ToUpper() != "<LOGON>")
+            {
+                if (WriteToLogFile)
+                {
+                    WriteToFile(Msg);
+                }
+            }
+
+        }
+
         public static void LogUDP(string MessageToLog)
         {
             Msg = DateTime.Now.ToString("HH:mm:ss") + " UDP Server: " + MessageToLog;
@@ -166,7 +180,8 @@ namespace TCPSocketServer
                         data = null;
                         bytes = new byte[1024];
                         int bytesRec = handler.Receive(bytes);
-                        data = Encoding.UTF8.GetString(bytes, 0, bytesRec);
+                        data = Encoding.UTF8.GetString(bytes, 0, bytesRec); 
+
 
                         if(data.ToUpper().IndexOf("<LOGON>") > -1)
                         {
@@ -251,6 +266,7 @@ namespace TCPSocketServer
 
         public static int Main(String[] args)
         {
+            WebAutomation.FoscamLogin(@"http://192.168.1.102:88", "admin", "fobonnie11");
             SetUpLogFile();
             while (true)
             {
