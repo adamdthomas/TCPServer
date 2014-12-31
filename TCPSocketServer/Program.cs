@@ -228,6 +228,11 @@ namespace TCPSocketServer
                             byte[] message = Encoding.UTF8.GetBytes(ipAddress.ToString() + ":3334");
                             handler.Send(message);
                         }
+                        else if (data == "<VIDEOINFO>")
+                        {
+                            byte[] message = Encoding.UTF8.GetBytes("www.thomasworkshop.com:88");
+                            handler.Send(message);
+                        }
                         else if (data == "<GAMEPADKILL>")
                         {
                             RunUDPServer = false;
@@ -266,7 +271,6 @@ namespace TCPSocketServer
 
         public static int Main(String[] args)
         {
-            WebAutomation.FoscamLogin(@"http://192.168.1.102:88", "admin", "fobonnie11");
             SetUpLogFile();
             while (true)
             {

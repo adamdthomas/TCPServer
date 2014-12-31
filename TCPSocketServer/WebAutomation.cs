@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.IE;
 using System.Runtime.InteropServices;
 
@@ -13,28 +14,55 @@ namespace TCPSocketServer
 {
     class WebAutomation
     {
+        public static string address;
+        public enum Direction { UP, DOWN, LEFT, RIGHT };
 
         public static void FoscamLogin(string Address, string UserName, string Password)
         {
             SynchronousSocketListener.LogWeb("Attempting to log into Foscam viewer...");
-            
             WebAutomationToolkit.Web.WebDriver = new InternetExplorerDriver();
-WebAutomationToolkit.Web.NavigateToURL(Address);
-      
-     // FFAllowPlugin();
-WebAutomationToolkit.Utilities.Wait(5);
-            
+            WebAutomationToolkit.Web.NavigateToURL(Address);
+            WebAutomationToolkit.Utilities.Wait(2,500);
             WebAutomationToolkit.Web.Sync.SyncByID("username", 10);
-            //WebAutomationToolkit.Web.Edit.SetTextByID("username", UserName);
             WebAutomationToolkit.Web.Edit.SetTextByCSSPath("#passwd", Password);
             WebAutomationToolkit.Web.Button.ClickByCSSPath("#login_ok");
             WebAutomationToolkit.Web.Sync.SyncByCSSPath("#LiveMenu", 10);
             WebAutomationToolkit.Web.Button.ClickByCSSPath("#LiveMenu");
+            WebAutomationToolkit.Utilities.Wait(5);
             SynchronousSocketListener.LogWeb("Webcam viewer has been launched successfully...");
-
         }
 
-            [DllImport("USER32.DLL", CharSet = CharSet.Unicode)]
+
+        public static void MoveCamera(Direction direction)
+        {
+            switch (direction)
+            {
+                case Direction.UP:
+                    WebAutomationToolkit.Web.Button.ClickByID(@"live_yt1_ptzMoveUp");
+                    SynchronousSocketListener.LogWeb("Camera move: UP");
+                    break;
+                case Direction.DOWN:
+                    WebAutomationToolkit.Web.Button.ClickByID(@"live_yt1_ptzMoveDown");
+                    SynchronousSocketListener.LogWeb("Camera move: DOWN");
+                    break;
+                case Direction.LEFT:
+                    WebAutomationToolkit.Web.Button.ClickByID(@"live_yt5_ptzMoveLeft");
+                    SynchronousSocketListener.LogWeb("Camera move: LEFT");
+                    break;
+                case Direction.RIGHT:
+                    WebAutomationToolkit.Web.Button.ClickByID(@"live_yt5_ptzMoveRight");
+                    SynchronousSocketListener.LogWeb("Camera move: RIGHT");
+                    break;
+                default:
+                    break;
+            }
+            WebAutomationToolkit.Utilities.Wait(0, 500);
+        }
+
+
+        #region SendKeys to App
+
+        [DllImport("USER32.DLL", CharSet = CharSet.Unicode)]
             public static extern IntPtr FindWindow(string lpClassName,
             string lpWindowName);
 
@@ -70,7 +98,9 @@ WebAutomationToolkit.Utilities.Wait(5);
                 WebAutomationToolkit.Utilities.Wait(5);
 
 
-                    }
+            }
+
+        #endregion
 
 
     }
