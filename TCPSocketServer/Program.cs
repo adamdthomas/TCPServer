@@ -225,7 +225,7 @@ namespace TCPSocketServer
                             UDPServerThread.Start();
                             LogTCP(data.ToString());
                             LogTCP("Sending client GP server info...");
-                            byte[] message = Encoding.UTF8.GetBytes(ipAddress.ToString() + ":3334");
+                            byte[] message = Encoding.UTF8.GetBytes("192.168.1.108:8888");
                             handler.Send(message);
                         }
                         else if (data == "<VIDEOINFO>")
