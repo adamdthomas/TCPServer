@@ -144,7 +144,7 @@ namespace TCPSocketServer
 
             if (TCPStarted)
             {
-                LogTCP("TCPServer v1.0 Listening on IP: " + ipAddress.ToString() + " Port: 3333"); 
+                LogTCP("TCPServer v1.1 Listening on IP: " + ipAddress.ToString() + " Port: 3333"); 
             }
             
 
